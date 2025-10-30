@@ -1,0 +1,31 @@
+# Requirements for basic directory
+
+# Core web / utils
+Flask
+python-dotenv
+
+# Raspberry Pi hardware interfaces (often preinstalled on Raspberry Pi OS)
+gpiozero
+RPLCD
+adafruit-blinka
+adafruit-circuitpython-dht
+bluedot
+
+# Media / camera
+pygame
+# picamera2  # usually installed via apt on Raspberry Pi (python3-picamera2)
+
+# Data & ML
+numpy
+Pillow
+datasets
+matplotlib
+seaborn
+scikit-learn
+
+# Choose one for model inference/training depending on environment
+# tensorflow       # full TensorFlow; heavy for Raspberry Pi
+# tflite-runtime  # preferred on Raspberry Pi; install arch-specific wheel
+
+# Dev tools
+pytest 
