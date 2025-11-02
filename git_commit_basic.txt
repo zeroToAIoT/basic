@@ -1,0 +1,20 @@
+# 1. 디렉터리 신뢰 등록
+git config --global --add safe.directory "D:/00_hanuri/01_lecture/77_makingBook/zeroToAI/02_src/basic"
+
+# 2. Git 초기화 (이미 했으면 생략 가능)
+git init
+
+# 3. 원격 저장소 연결
+git remote add origin https://github.com/zeroToAIoT/basic.git
+
+# 4. 파일 추가
+git add .
+
+# 5. 커밋
+git commit -m "Initial commit for basic"
+
+# 6. 브랜치 이름 설정
+git branch -M main
+
+# 7. GitHub에 푸시
+git push -u origin main
