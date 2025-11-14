@@ -1,15 +1,16 @@
-# file: pigpio_3_pir.py
-# refer : ch02_Basic/02_MotionSensor/motion_2.py
+# libgpiod_3_pir.py
 
 from signal import pause
 from gpiozero import MotionSensor
-from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero.pins.native import NativeFactory
 
+remote_factory = NativeFactory(
+        host='192.168.137.30',
+        user='pi',
+        password='12345678'
+    )
 
-ip = '192.168.137.161'          # Raspberry Pi IP address
-remotePi = PiGPIOFactory(host=ip)
-
-pir = MotionSensor(25, pin_factory=remotePi)
+pir = MotionSensor(4, pin_factory=remote_factory)
 
 def motion_detected():
     print('Motion detected')
@@ -32,6 +33,5 @@ except Exception as err:
     print(f'Error : {err}')
 
 finally:
-    pir.close()        # Optional
-    remotePi.close()    # Required!
-    print('Finished.')
+    pir.close()         # Optional
+    remote_factory.close()

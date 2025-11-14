@@ -33,7 +33,5 @@ except Exception as err:
     print(f'Error : {err}')
 
 finally:
-    led1.close()        # Optional
-    led2.close()        # Optional
     remotePi.close()
     print('Finished.')
