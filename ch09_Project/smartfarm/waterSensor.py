@@ -23,3 +23,6 @@ def read_water_level():
     except Exception as err:
         print(f'[WaterSensor Error] {err}')
         return None
+
+def water_sensor_cleanup():
+    water_sensor.close()

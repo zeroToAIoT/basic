@@ -58,3 +58,7 @@ def set_color(color_input):
 
     except Exception as err:
         print(f'[RGBLED Error] Setting color: {err}')
+
+def rgbled_cleanup():
+    led.off()
+    led.close()

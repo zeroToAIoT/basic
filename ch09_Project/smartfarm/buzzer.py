@@ -46,3 +46,7 @@ def check_and_alert(temp, hum, moisture, water_level):
 
     except Exception as err:
         print(f'Error in buzzer control: {err}')
+
+def buzzer_cleanup():
+    buzzer.off()
+    buzzer.close()

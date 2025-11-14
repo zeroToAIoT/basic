@@ -23,3 +23,6 @@ def read_light_sensor():
     except Exception as err:
         print(f'[Light Error] {err}')
         return None
+
+def light_cleanup():
+    light_sensor.close()

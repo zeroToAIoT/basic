@@ -23,3 +23,6 @@ def read_moisture():
     except Exception as err:
         print(f'[Moisture Error] {err}')
         return None
+
+def moisture_cleanup():
+    moisture_sensor.close()

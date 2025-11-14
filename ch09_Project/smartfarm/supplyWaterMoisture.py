@@ -1,71 +1,70 @@
 # file: supplyWaterMoisture.py
-# Supply Water Module using Moisture Sensor
-
 from time import sleep
 from gpiozero import Motor
-
-from config import PIN, get_threshold, WATER_PUMP_INTERVAL
-from moisture import read_moisture
+from config import PIN, get_threshold
 
 water_pump = Motor(PIN['WATER_PUMP'])
+_is_pump_on = False
+_manual_mode = False 
 
-def control_water_pump():
-    """Control water pump based on moisture sensor reading"""
+def control_water_pump_auto(moisture_value, manual_mode):
+    """ 자동 펌프 제어 (main.py의 중앙 루프에서 호출됨) """
+    global _is_pump_on, _manual_mode
+    _manual_mode = manual_mode
+
+    if _manual_mode:
+        return # 수동 모드일 땐 자동 제어 안 함
+
     try:
-        moisture_value = read_moisture()
         low_threshold = get_threshold('moisture_low')
         high_threshold = get_threshold('moisture_high')
 
         if moisture_value is not None:
             if moisture_value <= low_threshold:
-                print(f'[WaterPump] Moisture Low ({moisture_value:.2f}%) → Pump ON')
-                water_pump.forward()
+                if not _is_pump_on:
+                    print(f'[WaterPump] ON (Auto): Moisture Low ({moisture_value:.2f}%)')
+                    water_pump.forward()
+                    _is_pump_on = True
             elif moisture_value >= high_threshold:
-                print(f'[WaterPump] Moisture Sufficient ({moisture_value:.2f}%) → Pump OFF')
-                water_pump.stop()
-            else:
-                print(f'[WaterPump] Moisture Normal ({moisture_value:.2f}%) → Pump OFF')
-                water_pump.stop()
+                if _is_pump_on:
+                    print(f'[WaterPump] OFF (Auto): Moisture Sufficient ({moisture_value:.2f}%)')
+                    water_pump.stop()
+                    _is_pump_on = False
         else:
-            print('[WaterPump] Failed.. Moisture data unavailable. Pump OFF')
-            water_pump.stop()
-
-    except KeyboardInterrupt:
-        print('[WaterPump] Stopped by Ctrl+C')
-        water_pump.stop()
+            if _is_pump_on:
+                print('[WaterPump] Failed sensor data. Pump OFF (Auto) for safety.')
+                water_pump.stop()
+                _is_pump_on = False
     except Exception as err:
         print(f'[WaterPump Error] {err}')
         water_pump.stop()
+        _is_pump_on = False
 
-
-def water_pump_loop(stop_event):
-    """Loop to control water pump periodically until stop_event is set"""
-    try:
-        while not stop_event.is_set():
-            control_water_pump()
-            for _ in range(WATER_PUMP_INTERVAL):
-                if stop_event.is_set():
-                    break
-                sleep(1)
-    except Exception as err:
-        print(f'[WaterPump Error] in loop: {err}')
-        water_pump.stop()
-
-
-# Manual control functions for BlueDot
+# (manual functions)
 def pump_on():
-    """Manually turn on the water pump"""
+    global _is_pump_on, _manual_mode
     try:
         water_pump.forward()
+        _is_pump_on = True
+        _manual_mode = True
         print('[WaterPump] Manually turned ON')
     except Exception as e:
         print(f'[WaterPump Error] turning on: {e}')
 
-
 def pump_off():
-    """Manually turn off the water pump"""
+    global _is_pump_on, _manual_mode
     try:
         water_pump.stop()
+        _is_pump_on = False
+        _manual_mode = True
         print('[WaterPump] Manually turned OFF')
     except Exception as e:
-        print(f'[WaterPump Error] turning off: {err}')
+        print(f'[WaterPump Error] turning off: {e}')
+
+def get_pump_manual_mode():
+    return _manual_mode
+
+def water_pump_cleanup():
+    water_pump.stop()
+    water_pump.close()
+    print("[WaterPump] Resource released.")

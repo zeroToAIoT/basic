@@ -33,3 +33,13 @@ def toggle_system():
             activate_func()
 
 btn.when_pressed = toggle_system
+
+def cleanup():
+    """리소스 정리 함수"""
+    global btn
+    try:
+        if btn:
+            btn.close()
+        print("Button module cleaned up.")
+    except Exception as e:
+        print(f"Button module cleanup error: {e}")

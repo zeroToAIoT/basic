@@ -26,3 +26,14 @@ def capture_image(location):
         return None
     finally:
         home_cam.stop()
+
+def cleanup():
+    """리소스 정리 함수"""
+    global home_cam
+    try:
+        if home_cam:
+            home_cam.stop()
+            home_cam.close()
+        print("Camera module cleaned up.")
+    except Exception as e:
+        print(f"Camera module cleanup error: {e}")

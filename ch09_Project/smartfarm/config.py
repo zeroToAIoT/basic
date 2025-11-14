@@ -1,16 +1,13 @@
 # file: config.py
 # settings for the smart farm project
 
-import os
-
-# Raspberry Pi IP
-REMOTE_PI_IP = os.getenv('REMOTE_PI_IP', '192.168.137.162')
+import board
 
 # settings for GPIO pins
 PIN = {
     'FAN': (5, 6),
     'SERVO': 23,
-    'TEMP_HUM': 17,
+    'TEMP_HUM': board.D17,
     'RED': 25,
     'GREEN': 20,
     'BLUE': 21,
@@ -60,10 +57,10 @@ DB_PATH = '/home/pi/smartfarm_venv/DB/smartfarm.db'
 MODEL_PATH = '/home/pi/smartfarm_venv/model/plant_growth.tflite'
 
 GROWTH_LABELS = {
-    1: '🌱 Start 단계 (청색광)',
-    2: '🌿 Growth 단계 (보라광)',
-    3: '🌸 Flowering 단계 (적색광)',
-    4: '🍅 Fruition 단계 (주황광)'
+    1: 'Start 단계 (청색광)',
+    2: 'Growth 단계 (보라광)',
+    3: 'Flowering 단계 (적색광)',
+    4: 'Fruition 단계 (주황광)'
 }
 
 # setting bluedot button (4 * 4 grid)

@@ -1,77 +1,78 @@
 # file: lcd_module.py
-# LCD Display Module
+# LCD Display Module (Dumb Module) using RPLCD Library
 
 from time import sleep
-import drivers
-from temp_hum_module import read_temp_hum
-from fire_module import fire_detect
-from pir_module import read_pir_value
+from RPLCD.i2c import CharLCD 
 
-lcd = drivers.Lcd()
+lcd = CharLCD(i2c_expander='PCF8574', address=0x27, port=1, 
+              cols=16, rows=2, dotsize=8, 
+              charmap='A00', 
+              auto_linebreaks=True)
 
+def set_backlight(on=True):
+    lcd.backlight_enabled = on
+    
 def lcd_blink(count):           # Blink the LCD backlight
     for _ in range(count):
-        lcd.lcd_backlight(1)
+        set_backlight(True)
         sleep(0.3)
-        lcd.lcd_backlight(0)
+        set_backlight(False)
         sleep(0.3)
+    set_backlight(True) 
 
-    lcd.lcd_backlight(1)
-
-def lcd_fire():           # Display fire alert
-    lcd.lcd_clear()
+def display_fire_alert():           # Display fire alert
+    lcd.clear()
     lcd_blink(3)
-    lcd.lcd_display_string('!!! FIRE ALERT !!!', 1)
-    lcd.lcd_display_string('Evacuate immediately!', 2)
-    print('Fire detected! Emergency alert displayed.')
-
-def lcd_pir_display(location):         # Display PIR alert
-    lcd.lcd_clear()
+    lcd.write_string('!!! FIRE ALERT !!!\nEvacuate immediately!') 
+    print('LCD: Fire detected! Emergency alert displayed.')
+  
+def display_pir_alert(location):         # Display PIR alert
+    lcd.clear()
     lcd_blink(2)
-
-    if location == None:
-        lcd.lcd_display_string('No motion detected', 1)
-        lcd.lcd_display_string('ALL cleared!', 2)
-    elif location == 'door':
-        lcd.lcd_display_string('Motion at DOOR!', 1)
-        lcd.lcd_display_string('Check DOOR!', 2)
+  
+    if location == 'door':
+        lcd.write_string('Motion at DOOR!\nCheck DOOR!')
     elif location == 'window':
-        lcd.lcd_display_string('Motion at WINDOW!', 1)
-        lcd.lcd_display_string('Check WINDOW!', 2)
-    else:
-        lcd.lcd_display_string('Error', 1)
-        lcd.lcd_display_string('Check connections', 2)
-        print('Error displaying PIR alert')
+        lcd.write_string('Motion at WINDOW!\nCheck WINDOW!')
+    else: 
+        lcd.write_string('No motion detected\nALL cleared!')
+        print('LCD: No motion or invalid PIR location.')
 
-def lcd_temp_hum():        # Display temperature and humidity
-    temp, hum = read_temp_hum()
-    lcd.lcd_clear()
+def display_temp_hum(temp, hum):        # Display temperature and humidity
+    lcd.clear()
     if temp is not None and hum is not None:
-        lcd.lcd_display_string(f'Temp: {temp:.1f}C', 1)
-        lcd.lcd_display_string(f'Hum: {hum:.1f}%', 2)
-        print(f'Displaying Temp: {temp:.1f}C, Hum: {hum:.1f}%')
+        lcd.write_string(f'Temp: {temp:.1f}C\nHum: {hum:.1f}%') 
+        print(f'LCD: Displaying Temp: {temp:.1f}C, Hum: {hum:.1f}%')
     else:
-        lcd.lcd_display_string('Sensor Error', 1)
-        lcd.lcd_display_string('Check connections', 2)
-        print('Failed to read sensor data.')
+        lcd.write_string('Sensor Error\nCheck DHT!')
+        print('LCD: Failed to read DHT sensor data for display.')
 
-def lcd_display():      # Main loop for LCD display
-    while True:
-        try:
-            fire_alert = fire_detect()
-            pir_location = read_pir_value()
+def update_display(current_status):
+    """
+    LCD 디스플레이를 업데이트하는 메인 함수.
+    current_status 딕셔너리에서 모든 필요한 정보를 받습니다.
+    예: {'fire_alert': True, 'pir_location': 'door', 'temp': 25.0, 'hum': 50.0}
+    """
+    try:
+        fire_alert = current_status.get('fire_alert', False)
+        pir_location = current_status.get('pir_location', None)
+        temp = current_status.get('temp', None)
+        hum = current_status.get('hum', None)
 
-            if fire_alert:
-                lcd_fire()
-            elif pir_location:
-                lcd_pir_display(pir_location)
-                sleep(2)
-                
-                lcd_temp_hum() 
-            else:
-                lcd_temp_hum()
-                
-            sleep(1.5)
+        if fire_alert:
+            display_fire_alert()
+        elif pir_location:
+            display_pir_alert(pir_location)
+            sleep(2) 
+        else:
+            display_temp_hum(temp, hum)
+        
+    except Exception as err:
+        print(f'LCD Update Error: {err}')
+        lcd.clear()
+        lcd.write_string('LCD SYSTEM ERROR\nCheck Console')
 
-        except Exception as e:
-            print(f'LCD Error: {e}')
+def cleanup():
+    lcd.clear()
+    set_backlight(False) 
+    print("LCD module cleaned up.")

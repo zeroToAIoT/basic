@@ -33,4 +33,7 @@ def toggle_system():
             print('Button pressed - activating SmartFarm system')
             activate_func()
 
+def button_cleanup():
+    btn.close()
+
 btn.when_pressed = toggle_system

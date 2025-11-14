@@ -36,6 +36,10 @@ THRESHOLDS = {
 }
 
 # Morning call music file path
-BASE_DIR = '/home/pi/smartHome'
+# 상대 경로 사용: config.py가 있는 디렉토리를 기준으로 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# 환경 변수가 설정되어 있으면 우선 사용 (원격 실행 시 유용)
+BASE_DIR = os.getenv('SMARTHOME_BASE_DIR', BASE_DIR)
+
 MUSIC_DIR = os.path.join(BASE_DIR, 'music')
 LOG_PATH = os.path.join(BASE_DIR, 'logs')

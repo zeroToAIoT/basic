@@ -21,3 +21,6 @@ def read_temp_hum():
     except Exception as err:
         print(f'[TempHum Error] Sensor read error: {err}')
         return None, None
+
+def temp_hum_cleanup():
+    dht.close()
