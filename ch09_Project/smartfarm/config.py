@@ -5,14 +5,15 @@ import board
 
 # settings for GPIO pins
 PIN = {
+    
+    'BUZZER': 4,
+    'BUTTON': 23,
     'FAN': (5, 6),
-    'SERVO': 23,
-    'TEMP_HUM': board.D17,
     'RED': 25,
     'GREEN': 20,
     'BLUE': 21,
-    'BUTTON': 4,
-    'BUZZER': 18,
+    'SERVO': 18,
+    'TEMP_HUM': board.D17,
     'WATER_PUMP': (12, 16),
 }
 
